@@ -1,0 +1,30 @@
+{
+  "name": "distro-cli",
+  "version": "0.1.0",
+  "description": "Distribution engine for open-source projects — monitor, reply, track, analyze",
+  "type": "module",
+  "bin": {
+    "distro": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x dist/cli.js",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "distribution",
+    "open-source",
+    "twitter",
+    "monitoring",
+    "engagement"
+  ],
+  "author": "lucasygu",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "hono": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
