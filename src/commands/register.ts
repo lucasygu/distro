@@ -8,48 +8,23 @@ type RegisterOpts = {
   findIn?: string;
 };
 
-export async function registerCommand(
+/**
+ * Core registration: fetch reply + OP via bird, add to ledger.
+ * Used by both `distro register` and `distro discover`.
+ */
+export async function registerReply(
   campaignDir: string,
-  urlOrId: string,
-  opts: RegisterOpts,
+  tweetId: string,
+  strategy = "unknown",
 ): Promise<void> {
   const config = await loadCampaign(campaignDir);
-
-  // If --find-in mode, search the OP thread for our reply first
-  if (opts.findIn) {
-    console.log("━━━ Finding our reply in thread ━━━");
-    console.error(`🔍 Fetching replies to: ${opts.findIn}`);
-    const result = await callBird(["replies", opts.findIn], campaignDir);
-    if (!result.ok) {
-      console.error("❌ Failed to fetch thread replies.");
-      process.exit(1);
-    }
-    const ours = result.data.find(
-      (t) => t.author.username.toLowerCase() === config.handle.toLowerCase(),
-    );
-    if (!ours) {
-      console.error("❌ Could not find our reply in that thread.");
-      process.exit(1);
-    }
-    console.error(`Found our reply: ${ours.id}`);
-    urlOrId = ours.id;
-  }
-
-  // Extract tweet ID from URL or raw ID
-  const tweetId = extractId(urlOrId);
-  if (!tweetId) {
-    console.error(`Could not extract tweet ID from: ${urlOrId}`);
-    process.exit(1);
-  }
-
-  // Check if already in ledger
   const ledger = await loadLedger(campaignDir);
+
   if (ledger.replies.some((r) => r.id === tweetId)) {
     console.log(`⏭  Already in ledger: ${tweetId}`);
     return;
   }
 
-  // Fetch our reply
   console.error(`📥 Fetching reply ${tweetId}...`);
   const replyResult = await callBird(
     ["read", `https://x.com/i/status/${tweetId}`],
@@ -57,11 +32,10 @@ export async function registerCommand(
   );
   if (!replyResult.ok) {
     console.error(`❌ Failed to fetch reply ${tweetId}`);
-    process.exit(1);
+    return;
   }
   const reply = replyResult.data[0];
 
-  // Fetch OP
   let op = null;
   if (reply.inReplyToStatusId) {
     console.error(`📥 Fetching OP ${reply.inReplyToStatusId}...`);
@@ -74,20 +48,11 @@ export async function registerCommand(
     }
   }
 
-  // Determine strategy
-  const strategy = opts.strategy ?? "unknown";
-  if (!opts.strategy) {
-    console.log(`  Reply text: ${reply.text.slice(0, 150)}`);
-    console.log(`  (Use --strategy to classify: short-anchored, peer-sharing, etc.)`);
-  }
-
-  // Parse dates
   const postedAt = parseCreatedAt(reply.createdAt);
   const now = new Date().toISOString().replace(/\.\d+Z$/, "Z");
   const ageHours =
     (Date.now() - new Date(postedAt).getTime()) / (1000 * 60 * 60);
 
-  // Compute OP age when we replied
   let opAgeHours = 0;
   if (op) {
     const opCreated = new Date(parseCreatedAt(op.createdAt));
@@ -131,13 +96,11 @@ export async function registerCommand(
     ],
   };
 
-  // Update ledger
   ledger.replies.push(entry);
   if (!ledger.campaign) ledger.campaign = config.name;
   if (!ledger.our_handle) ledger.our_handle = config.handle;
   await saveLedger(campaignDir, ledger);
 
-  // Log
   await appendLog(campaignDir, {
     event: "REPLY",
     detail: `@${entry.op_author} (${entry.op_at_reply.likes}L OP) ${entry.char_count}ch ${strategy}`,
@@ -147,6 +110,44 @@ export async function registerCommand(
   console.log(
     `✅ Registered: ${entry.id} → @${entry.op_author} | ${reply.likeCount}L | ${strategy}`,
   );
+}
+
+export async function registerCommand(
+  campaignDir: string,
+  urlOrId: string,
+  opts: RegisterOpts,
+): Promise<void> {
+  const config = await loadCampaign(campaignDir);
+
+  // If --find-in mode, search the OP thread for our reply first
+  if (opts.findIn) {
+    console.log("━━━ Finding our reply in thread ━━━");
+    console.error(`🔍 Fetching replies to: ${opts.findIn}`);
+    const result = await callBird(["replies", opts.findIn], campaignDir);
+    if (!result.ok) {
+      console.error("❌ Failed to fetch thread replies.");
+      process.exit(1);
+    }
+    const ours = result.data.find(
+      (t) => t.author.username.toLowerCase() === config.handle.toLowerCase(),
+    );
+    if (!ours) {
+      console.error("❌ Could not find our reply in that thread.");
+      process.exit(1);
+    }
+    console.error(`Found our reply: ${ours.id}`);
+    urlOrId = ours.id;
+  }
+
+  // Extract tweet ID from URL or raw ID
+  const tweetId = extractId(urlOrId);
+  if (!tweetId) {
+    console.error(`Could not extract tweet ID from: ${urlOrId}`);
+    process.exit(1);
+  }
+
+  const strategy = opts.strategy ?? "unknown";
+  await registerReply(campaignDir, tweetId, strategy);
 }
 
 function extractId(input: string): string | null {

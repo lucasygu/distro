@@ -7,6 +7,8 @@ import { registerCommand } from "./commands/register.js";
 import { checkCommand } from "./commands/check.js";
 import { reportCommand } from "./commands/report.js";
 import { insightCommand } from "./commands/insight.js";
+import { discoverCommand } from "./commands/discover.js";
+import { initCommand } from "./commands/init.js";
 
 const program = new Command();
 
@@ -45,8 +47,7 @@ program
   .action(async () => {
     const root = resolveRoot(program.opts().root);
     const dir = resolveCampaignDir(root, program.opts().campaign);
-    // TODO: implement discover command
-    console.log("discover: not yet implemented");
+    await discoverCommand(dir);
   });
 
 program
@@ -99,11 +100,13 @@ program
   });
 
 program
-  .command("init")
+  .command("init [name]")
   .description("Scaffold a new campaign directory")
-  .action(async () => {
-    // TODO: implement init
-    console.log("init: not yet implemented");
+  .option("--repo <owner/name>", "GitHub repo")
+  .option("--handle <handle>", "X handle")
+  .action(async (name, opts) => {
+    const root = resolveRoot(program.opts().root);
+    await initCommand(root, { name, ...opts });
   });
 
 program.parse();
