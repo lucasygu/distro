@@ -16,6 +16,7 @@ export type CampaignConfig = {
   githubLink: string;
   since: string;
   platform?: string;
+  playbook?: string; // filename of strategy doc (e.g., "PLAYBOOK.md")
 };
 
 // === reply-ledger.json ===

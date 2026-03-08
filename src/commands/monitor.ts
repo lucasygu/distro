@@ -2,10 +2,13 @@ import { loadCampaign } from "../lib/data.js";
 import { callBird } from "../lib/bird.js";
 import { appendLog } from "../lib/log.js";
 import type { BirdTweet } from "../lib/types.js";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 type MonitorOpts = {
   since?: string;
   minLikes?: string;
+  save?: boolean;
 };
 
 export async function monitorCommand(
@@ -214,6 +217,58 @@ export async function monitorCommand(
   console.log("To draft a reply:");
   console.log("  /reply-composer https://x.com/author/status/<ID>");
   console.log();
+
+  // Save report if requested
+  if (opts.save) {
+    const reportsDir = join(campaignDir, "reports");
+    await mkdir(reportsDir, { recursive: true });
+    const date = new Date().toISOString().slice(0, 16).replace("T", "T");
+    const reportPath = join(
+      reportsDir,
+      `${new Date().toISOString().slice(0, 10)}_x-monitor.md`,
+    );
+    const lines: string[] = [
+      `# X Monitor Report — ${new Date().toISOString().slice(0, 16).replace("T", " ")}`,
+      "",
+      `Queries: ${config.queries.length} | Since: ${config.since} | Min likes: ${minLikes}`,
+      `Total scanned: ${seen.size} | Found: ${parentFiltered.length} (${high.length} reply zone, ${medium.length} watch zone)`,
+      `Unreplied: ${unrepliedHigh.length} high, ${unrepliedMed.length} medium`,
+      "",
+    ];
+    if (high.length > 0) {
+      lines.push("## Reply Zone (50+)");
+      lines.push("");
+      for (const t of high) {
+        const status = repliedIds.has(t.id) ? "REPLIED" : "UNREPLIED";
+        lines.push(
+          `- **@${t.author.username}** ${t.likeCount}L ${t.retweetCount}RT ${t.replyCount}R [${status}]`,
+        );
+        lines.push(
+          `  ${t.text.replace(/\n/g, " ").slice(0, 120)}`,
+        );
+        lines.push(
+          `  https://x.com/${t.author.username}/status/${t.id}`,
+        );
+        lines.push("");
+      }
+    }
+    if (medium.length > 0) {
+      lines.push("## Watch Zone (10-49)");
+      lines.push("");
+      for (const t of medium) {
+        const status = repliedIds.has(t.id) ? "REPLIED" : "UNREPLIED";
+        lines.push(
+          `- **@${t.author.username}** ${t.likeCount}L ${t.retweetCount}RT ${t.replyCount}R [${status}]`,
+        );
+        lines.push(
+          `  https://x.com/${t.author.username}/status/${t.id}`,
+        );
+        lines.push("");
+      }
+    }
+    await writeFile(reportPath, lines.join("\n"));
+    console.log(`Saved: ${reportPath}`);
+  }
 }
 
 function formatTweet(

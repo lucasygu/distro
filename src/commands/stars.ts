@@ -54,12 +54,19 @@ export async function starsCommand(campaignDir: string): Promise<void> {
   await appendLog(campaignDir, { event: "STARS", detail, driver: "" });
 
   // Output
-  console.log(`⭐ ${stars} stars | 🍴 ${forks} forks`);
+  console.log(`⭐ ${config.repo}: ${stars} stars | 🍴 ${forks} forks`);
   if (delta > 0) {
     console.log(`   +${delta} since last check`);
   } else if (delta < 0) {
     console.log(`   ${delta} since last check`);
   } else if (previous) {
-    console.log(`   No change since last check`);
+    let lastChangeTs = previous.ts.slice(0, 16).replace("T", " ");
+    for (let i = history.length - 1; i > 0; i--) {
+      if (history[i].stars !== history[i - 1].stars) {
+        lastChangeTs = history[i].ts.slice(0, 16).replace("T", " ");
+        break;
+      }
+    }
+    console.log(`   No change since ${lastChangeTs}`);
   }
 }

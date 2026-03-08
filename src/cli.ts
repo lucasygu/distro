@@ -25,6 +25,7 @@ program
   .description("Search X for reply opportunities")
   .option("--since <period>", "Time window", "3d")
   .option("--min-likes <n>", "Minimum likes threshold", "10")
+  .option("--save", "Save report to reports/ directory")
   .action(async (opts) => {
     const root = resolveRoot(program.opts().root);
     const dir = resolveCampaignDir(root, program.opts().campaign);

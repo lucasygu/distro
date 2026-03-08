@@ -41,6 +41,7 @@ export async function initCommand(
     githubLink: `https://github.com/${opts.repo ?? `lucasygu/${name}`}`,
     since: "3d",
     platform: "x",
+    playbook: "PLAYBOOK.md",
   };
 
   await writeFile(
@@ -69,6 +70,38 @@ export async function initCommand(
   // Initialize star history
   await writeFile(join(campaignDir, ".star-history.json"), "[]\n");
 
+  // Create playbook template
+  const playbook = [
+    `# Reply Playbook — ${name}`,
+    "",
+    "> Update this file as you learn what works.",
+    "",
+    "## Targeting Rules",
+    "",
+    "- OP sweet spot: 100-500L",
+    "- Skip crowded threads (10+ replies)",
+    "- Reply fresh (within hours)",
+    "",
+    "## Drafting Rules",
+    "",
+    "- Under 80 chars + GitHub link",
+    "- Short-anchored: echo one OP detail → bridge to your thing",
+    "- Match OP language",
+    "- No hashtags, no \"Great post!\" energy",
+    "",
+    "## Top Performers",
+    "",
+    "| # | OP | Likes | Chars | Strategy |",
+    "|---|-----|-------|-------|----------|",
+    "| 1 | (pending) | — | — | — |",
+    "",
+    "## Dead Strategies",
+    "",
+    "- (none yet)",
+    "",
+  ].join("\n");
+  await writeFile(join(campaignDir, "PLAYBOOK.md"), playbook);
+
   // Create directories
   await mkdir(join(campaignDir, "drafts"), { recursive: true });
   await mkdir(join(campaignDir, "reports"), { recursive: true });
@@ -77,6 +110,7 @@ export async function initCommand(
   console.log();
   console.log("Created:");
   console.log(`  campaign.json         — edit queries, repo, handle`);
+  console.log(`  PLAYBOOK.md           — reply strategy docs`);
   console.log(`  reply-ledger.json     — reply tracking (empty)`);
   console.log(`  distribution-log.tsv  — event log (empty)`);
   console.log(`  .star-history.json    — star tracking (empty)`);
