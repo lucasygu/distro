@@ -1,0 +1,109 @@
+import { Hono } from "hono";
+import { serve } from "@hono/node-server";
+import {
+  discoverCampaigns,
+  loadCampaign,
+  loadLedger,
+  loadStarHistory,
+} from "../lib/data.js";
+import { readLog } from "../lib/log.js";
+import { CampaignView } from "../views/campaign.js";
+import { HomeView } from "../views/home.js";
+
+export async function dashboardCommand(
+  root: string,
+  port: number,
+): Promise<void> {
+  const app = new Hono();
+
+  // Home — list all campaigns
+  app.get("/", async (c) => {
+    const campaigns = await discoverCampaigns(root);
+    const summaries = await Promise.all(
+      campaigns.map(async (camp) => ({
+        name: camp.name,
+        config: camp.config,
+        ledger: await loadLedger(camp.dir),
+        starHistory: await loadStarHistory(camp.dir),
+      })),
+    );
+    return c.html(<HomeView campaigns={summaries} /> as any);
+  });
+
+  // Campaign detail
+  app.get("/campaign/:name", async (c) => {
+    const name = c.req.param("name");
+    const campaigns = await discoverCampaigns(root);
+    const campaign = campaigns.find((camp) => camp.name === name);
+
+    if (!campaign) {
+      return c.text(`Campaign not found: ${name}`, 404);
+    }
+
+    const [ledger, starHistory, logEntries] = await Promise.all([
+      loadLedger(campaign.dir),
+      loadStarHistory(campaign.dir),
+      readLog(campaign.dir),
+    ]);
+
+    const campaignList = campaigns.map((camp) => ({
+      name: camp.name,
+      active: camp.name === name,
+    }));
+
+    return c.html(
+      (
+        <CampaignView
+          config={campaign.config}
+          ledger={ledger}
+          starHistory={starHistory}
+          logEntries={logEntries}
+          campaigns={campaignList}
+        />
+      ) as any,
+    );
+  });
+
+  // API endpoints (for future use / AJAX refresh)
+  app.get("/api/campaigns", async (c) => {
+    const campaigns = await discoverCampaigns(root);
+    return c.json(campaigns.map((camp) => camp.config));
+  });
+
+  app.get("/api/campaign/:name/ledger", async (c) => {
+    const name = c.req.param("name");
+    const campaigns = await discoverCampaigns(root);
+    const campaign = campaigns.find((camp) => camp.name === name);
+    if (!campaign) return c.json({ error: "not found" }, 404);
+    const ledger = await loadLedger(campaign.dir);
+    return c.json(ledger);
+  });
+
+  app.get("/api/campaign/:name/stars", async (c) => {
+    const name = c.req.param("name");
+    const campaigns = await discoverCampaigns(root);
+    const campaign = campaigns.find((camp) => camp.name === name);
+    if (!campaign) return c.json({ error: "not found" }, 404);
+    const history = await loadStarHistory(campaign.dir);
+    return c.json(history);
+  });
+
+  app.get("/api/campaign/:name/log", async (c) => {
+    const name = c.req.param("name");
+    const campaigns = await discoverCampaigns(root);
+    const campaign = campaigns.find((camp) => camp.name === name);
+    if (!campaign) return c.json({ error: "not found" }, 404);
+    const entries = await readLog(campaign.dir);
+    return c.json(entries);
+  });
+
+  console.log(`Distro Dashboard: http://localhost:${port}`);
+  console.log(`Root: ${root}`);
+  const campaigns = await discoverCampaigns(root);
+  console.log(
+    `Campaigns: ${campaigns.map((c) => c.name).join(", ") || "(none found)"}`,
+  );
+  console.log();
+
+  serve({ fetch: app.fetch, port });
+}

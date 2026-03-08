@@ -9,6 +9,7 @@ import { reportCommand } from "./commands/report.js";
 import { insightCommand } from "./commands/insight.js";
 import { discoverCommand } from "./commands/discover.js";
 import { initCommand } from "./commands/init.js";
+import { dashboardCommand } from "./commands/dashboard.js";
 
 const program = new Command();
 
@@ -95,8 +96,7 @@ program
   .option("--port <n>", "Server port", "3000")
   .action(async (opts) => {
     const root = resolveRoot(program.opts().root);
-    // TODO: implement dashboard (Phase 3)
-    console.log(`dashboard: not yet implemented (root: ${root}, port: ${opts.port})`);
+    await dashboardCommand(root, parseInt(opts.port, 10));
   });
 
 program

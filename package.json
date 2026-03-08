@@ -20,6 +20,7 @@
   "author": "lucasygu",
   "license": "MIT",
   "dependencies": {
+    "@hono/node-server": "^1.19.11",
     "commander": "^13.1.0",
     "hono": "^4.7.0"
   },
