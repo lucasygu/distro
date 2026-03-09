@@ -9,6 +9,8 @@ import { StarChart } from "./components/star-chart.js";
 import { ReplyTable } from "./components/reply-table.js";
 import { EventTimeline } from "./components/event-timeline.js";
 import { StrategyBreakdown } from "./components/strategy-breakdown.js";
+import { MonitoringStatus } from "./components/monitoring-status.js";
+import { deriveMonitoringHealth } from "../lib/health.js";
 
 type CampaignViewProps = {
   config: CampaignConfig;
@@ -115,6 +117,15 @@ export function CampaignView({
               label="Engagement"
               value={`${engagementRate}%`}
               delta={`${withLikes}/${totalReplies} got likes`}
+            />
+          </div>
+
+          {/* Monitoring status */}
+          <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+            <MonitoringStatus
+              health={deriveMonitoringHealth(logEntries)}
+              config={config}
+              now={new Date()}
             />
           </div>
 

@@ -76,6 +76,24 @@ export type LogEntry = {
   driver: string;
 };
 
+// === Monitoring health (derived from log) ===
+
+export type HealthStatus = "active" | "stale" | "stopped";
+
+export type EventTypeHealth = {
+  eventType: LogEvent;
+  lastRun: Date | null;
+  inferredFrequencyMs: number | null;
+  health: HealthStatus;
+  eventCount: number;
+  lastDetail: string;
+};
+
+export type MonitoringHealth = {
+  types: EventTypeHealth[];
+  overallHealth: HealthStatus;
+};
+
 // === .star-history.json ===
 
 export type StarSnapshot = {

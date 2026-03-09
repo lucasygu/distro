@@ -10,10 +10,8 @@ import { readLog } from "../lib/log.js";
 import { CampaignView } from "../views/campaign.js";
 import { HomeView } from "../views/home.js";
 
-export async function dashboardCommand(
-  root: string,
-  port: number,
-): Promise<void> {
+export async function dashboardCommand(root: string): Promise<void> {
+  const port = parseInt(process.env.PORT || "3000");
   const app = new Hono();
 
   // Home — list all campaigns
@@ -25,6 +23,7 @@ export async function dashboardCommand(
         config: camp.config,
         ledger: await loadLedger(camp.dir),
         starHistory: await loadStarHistory(camp.dir),
+        logEntries: await readLog(camp.dir),
       })),
     );
     return c.html(<HomeView campaigns={summaries} /> as any);
@@ -97,7 +96,7 @@ export async function dashboardCommand(
     return c.json(entries);
   });
 
-  console.log(`Distro Dashboard: http://localhost:${port}`);
+  console.log(`Distro Dashboard running on port ${port}`);
   console.log(`Root: ${root}`);
   const campaigns = await discoverCampaigns(root);
   console.log(

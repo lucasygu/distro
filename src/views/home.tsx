@@ -2,14 +2,18 @@ import type {
   CampaignConfig,
   ReplyLedger,
   StarSnapshot,
+  LogEntry,
 } from "../lib/types.js";
 import { Layout } from "./layout.js";
+import { deriveMonitoringHealth } from "../lib/health.js";
+import { HealthDot } from "./components/monitoring-status.js";
 
 type CampaignSummary = {
   name: string;
   config: CampaignConfig;
   ledger: ReplyLedger;
   starHistory: StarSnapshot[];
+  logEntries: LogEntry[];
 };
 
 export function HomeView({ campaigns }: { campaigns: CampaignSummary[] }) {
@@ -59,6 +63,8 @@ export function HomeView({ campaigns }: { campaigns: CampaignSummary[] }) {
                 );
               }, 0);
 
+              const health = deriveMonitoringHealth(c.logEntries);
+
               return (
                 <a
                   href={`/campaign/${c.name}`}
@@ -66,8 +72,11 @@ export function HomeView({ campaigns }: { campaigns: CampaignSummary[] }) {
                 >
                   <div class="flex items-center justify-between">
                     <div>
-                      <h3 class="text-lg font-semibold">{c.name}</h3>
-                      <p class="text-sm text-gray-500">{c.config.repo}</p>
+                      <div class="flex items-center gap-2">
+                        <HealthDot health={health.overallHealth} />
+                        <h3 class="text-lg font-semibold">{c.name}</h3>
+                      </div>
+                      <p class="text-sm text-gray-500 ml-4.5">{c.config.repo}</p>
                     </div>
                     <div class="flex gap-6 text-sm">
                       <div class="text-center">
