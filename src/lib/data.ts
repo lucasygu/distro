@@ -43,7 +43,18 @@ export async function loadCampaign(
 ): Promise<CampaignConfig> {
   const configPath = join(campaignDir, "campaign.json");
   const raw = await readFile(configPath, "utf-8");
-  return JSON.parse(raw) as CampaignConfig;
+  const parsed = JSON.parse(raw);
+
+  // Backward compatibility: default strategy, rename fields
+  if (!parsed.strategy) parsed.strategy = "reply-to-boost";
+  if (!parsed.replyTactics && parsed.strategies) {
+    parsed.replyTactics = parsed.strategies;
+  }
+  if (!parsed.deadReplyTactics && parsed.deadStrategies) {
+    parsed.deadReplyTactics = parsed.deadStrategies;
+  }
+
+  return parsed as CampaignConfig;
 }
 
 // === Campaign discovery (for dashboard) ===

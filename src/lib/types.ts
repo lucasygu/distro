@@ -1,6 +1,8 @@
 // Data contract — types for all campaign data files.
 // JSON files use snake_case to match existing data format.
 
+import type { StrategyType } from "../strategies/types.js";
+
 // === campaign.json ===
 
 export type CampaignConfig = {
@@ -8,15 +10,17 @@ export type CampaignConfig = {
   repo: string;
   handle: string;
   language: string;
+  strategy: StrategyType;
+  // Reply-to-boost specific
   queries: string[];
   minLikes: number;
   crowdedThreshold: number;
-  strategies: string[];
-  deadStrategies: string[];
+  replyTactics: string[];
+  deadReplyTactics: string[];
   githubLink: string;
   since: string;
   platform?: string;
-  playbook?: string; // filename of strategy doc (e.g., "PLAYBOOK.md")
+  playbook?: string;
 };
 
 // === reply-ledger.json ===
