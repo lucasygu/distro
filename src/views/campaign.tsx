@@ -4,6 +4,7 @@ import type {
   StarSnapshot,
   LogEntry,
 } from "../lib/types.js";
+import type { LoopInfo } from "../lib/monitor-loop.js";
 import { Layout } from "./layout.js";
 import { StarChart } from "./components/star-chart.js";
 import { ReplyTable } from "./components/reply-table.js";
@@ -18,6 +19,7 @@ type CampaignViewProps = {
   starHistory: StarSnapshot[];
   logEntries: LogEntry[];
   campaigns: { name: string; active: boolean }[];
+  loopStatus: LoopInfo | null;
 };
 
 export function CampaignView({
@@ -26,6 +28,7 @@ export function CampaignView({
   starHistory,
   logEntries,
   campaigns,
+  loopStatus,
 }: CampaignViewProps) {
   const currentStars =
     starHistory.length > 0 ? starHistory[starHistory.length - 1].stars : 0;
@@ -126,6 +129,7 @@ export function CampaignView({
               health={deriveMonitoringHealth(logEntries)}
               config={config}
               now={new Date()}
+              loopStatus={loopStatus}
             />
           </div>
 

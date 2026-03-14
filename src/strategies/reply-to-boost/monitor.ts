@@ -16,7 +16,8 @@ export async function replyToBoostMonitor(
   opts: MonitorOpts,
 ): Promise<void> {
   const config = await loadCampaign(campaignDir);
-  const minLikes = parseInt(opts.minLikes ?? String(config.minLikes), 10);
+  const minLikes = parseInt(opts.minLikes ?? String(config.minLikes ?? 10), 10);
+  const queries = config.queries ?? [];
 
   // Phase 1: Search across all queries
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -28,10 +29,10 @@ export async function replyToBoostMonitor(
 
   const seen = new Map<string, BirdTweet>();
 
-  for (let i = 0; i < config.queries.length; i++) {
-    const q = config.queries[i];
+  for (let i = 0; i < queries.length; i++) {
+    const q = queries[i];
     console.error(
-      `🔍 Query ${i + 1}/${config.queries.length}: ${q}`,
+      `🔍 Query ${i + 1}/${queries.length}: ${q}`,
     );
     const result = await callBird(["search", q], campaignDir);
     if (result.ok) {
@@ -229,7 +230,7 @@ export async function replyToBoostMonitor(
     const lines: string[] = [
       `# X Monitor Report — ${new Date().toISOString().slice(0, 16).replace("T", " ")}`,
       "",
-      `Queries: ${config.queries.length} | Since: ${config.since} | Min likes: ${minLikes}`,
+      `Queries: ${queries.length} | Since: ${config.since} | Min likes: ${minLikes}`,
       `Total scanned: ${seen.size} | Found: ${parentFiltered.length} (${high.length} reply zone, ${medium.length} watch zone)`,
       `Unreplied: ${unrepliedHigh.length} high, ${unrepliedMed.length} medium`,
       "",

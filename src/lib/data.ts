@@ -5,6 +5,8 @@ import type {
   CampaignConfig,
   ReplyLedger,
   StarSnapshot,
+  PostLedger,
+  GrowthSnapshot,
   DistroConfig,
 } from "./types.js";
 
@@ -123,4 +125,50 @@ export async function appendStarSnapshot(
   history.push(snapshot);
   const historyPath = join(campaignDir, ".star-history.json");
   await writeFile(historyPath, JSON.stringify(history, null, 2) + "\n");
+}
+
+// === Post ledger (audience-growth) ===
+
+export async function loadPostLedger(
+  campaignDir: string,
+): Promise<PostLedger> {
+  const path = join(campaignDir, "post-ledger.json");
+  try {
+    const raw = await readFile(path, "utf-8");
+    return JSON.parse(raw) as PostLedger;
+  } catch {
+    return { version: 1, campaign: "", handle: "", posts: [] };
+  }
+}
+
+export async function savePostLedger(
+  campaignDir: string,
+  ledger: PostLedger,
+): Promise<void> {
+  const path = join(campaignDir, "post-ledger.json");
+  await writeFile(path, JSON.stringify(ledger, null, 2) + "\n");
+}
+
+// === Growth history (audience-growth) ===
+
+export async function loadGrowthHistory(
+  campaignDir: string,
+): Promise<GrowthSnapshot[]> {
+  const path = join(campaignDir, ".growth-history.json");
+  try {
+    const raw = await readFile(path, "utf-8");
+    return JSON.parse(raw) as GrowthSnapshot[];
+  } catch {
+    return [];
+  }
+}
+
+export async function appendGrowthSnapshot(
+  campaignDir: string,
+  snapshot: GrowthSnapshot,
+): Promise<void> {
+  const history = await loadGrowthHistory(campaignDir);
+  history.push(snapshot);
+  const path = join(campaignDir, ".growth-history.json");
+  await writeFile(path, JSON.stringify(history, null, 2) + "\n");
 }

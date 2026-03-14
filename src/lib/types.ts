@@ -7,20 +7,25 @@ import type { StrategyType } from "../strategies/types.js";
 
 export type CampaignConfig = {
   name: string;
-  repo: string;
   handle: string;
   language: string;
   strategy: StrategyType;
-  // Reply-to-boost specific
-  queries: string[];
-  minLikes: number;
-  crowdedThreshold: number;
-  replyTactics: string[];
-  deadReplyTactics: string[];
-  githubLink: string;
-  since: string;
   platform?: string;
+
+  // Reply-to-boost specific
+  repo?: string;
+  queries?: string[];
+  minLikes?: number;
+  crowdedThreshold?: number;
+  replyTactics?: string[];
+  deadReplyTactics?: string[];
+  githubLink?: string;
+  since?: string;
   playbook?: string;
+
+  // Audience-growth specific
+  topics?: string[];
+  postFrequency?: string; // e.g. "daily", "2x-daily"
 };
 
 // === reply-ledger.json ===
@@ -134,6 +139,42 @@ export type BirdTweet = {
 export type BirdResult<T = BirdTweet[]> =
   | { ok: true; data: T }
   | { ok: false; data: null; error: string };
+
+// === Audience-growth data ===
+
+export type PostType = "original" | "reply" | "quote";
+
+export type PostSnapshot = {
+  ts: string;
+  age_hours: number;
+  likes: number;
+  retweets: number;
+  replies: number;
+  impressions?: number;
+};
+
+export type PostEntry = {
+  id: string;
+  type: PostType;
+  text: string;
+  posted_at: string;
+  topic: string;
+  in_reply_to?: string; // tweet ID if this is a reply
+  snapshots: PostSnapshot[];
+};
+
+export type PostLedger = {
+  version: number;
+  campaign: string;
+  handle: string;
+  posts: PostEntry[];
+};
+
+export type GrowthSnapshot = {
+  ts: string;
+  followers: number;
+  following: number;
+};
 
 // === distro root config (~/.distrorc) ===
 

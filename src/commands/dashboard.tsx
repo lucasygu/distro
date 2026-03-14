@@ -7,6 +7,12 @@ import {
   loadStarHistory,
 } from "../lib/data.js";
 import { readLog } from "../lib/log.js";
+import {
+  startLoop,
+  stopLoop,
+  getLoopStatus,
+  getAllLoopStatuses,
+} from "../lib/monitor-loop.js";
 import { CampaignView } from "../views/campaign.js";
 import { HomeView } from "../views/home.js";
 
@@ -26,7 +32,9 @@ export async function dashboardCommand(root: string): Promise<void> {
         logEntries: await readLog(camp.dir),
       })),
     );
-    return c.html(<HomeView campaigns={summaries} /> as any);
+    return c.html(
+      (<HomeView campaigns={summaries} loopStatuses={getAllLoopStatuses()} />) as any,
+    );
   });
 
   // Campaign detail
@@ -58,6 +66,7 @@ export async function dashboardCommand(root: string): Promise<void> {
           starHistory={starHistory}
           logEntries={logEntries}
           campaigns={campaignList}
+          loopStatus={getLoopStatus(name)}
         />
       ) as any,
     );
@@ -94,6 +103,46 @@ export async function dashboardCommand(root: string): Promise<void> {
     if (!campaign) return c.json({ error: "not found" }, 404);
     const entries = await readLog(campaign.dir);
     return c.json(entries);
+  });
+
+  // Monitor control API
+  app.post("/api/campaign/:name/monitor/start", async (c) => {
+    const name = c.req.param("name");
+    const campaigns = await discoverCampaigns(root);
+    const campaign = campaigns.find((camp) => camp.name === name);
+    if (!campaign) return c.json({ ok: false, reason: "not found" }, 404);
+    const intervalMin = parseInt(c.req.query("interval") || "10");
+    const result = startLoop(name, campaign.dir, root, intervalMin * 60 * 1000);
+    return c.json({ ok: result.started, reason: result.reason });
+  });
+
+  app.post("/api/campaign/:name/monitor/stop", async (c) => {
+    const name = c.req.param("name");
+    const stopped = stopLoop(name);
+    return c.json({ ok: stopped, reason: stopped ? undefined : "not running" });
+  });
+
+  app.post("/api/monitor/start-all", async (c) => {
+    const campaigns = await discoverCampaigns(root);
+    const intervalMin = parseInt(c.req.query("interval") || "10");
+    const results: Record<string, boolean> = {};
+    for (const camp of campaigns) {
+      const r = startLoop(camp.name, camp.dir, root, intervalMin * 60 * 1000);
+      results[camp.name] = r.started;
+    }
+    return c.json({ ok: true, results });
+  });
+
+  app.post("/api/monitor/stop-all", async (c) => {
+    const campaigns = await discoverCampaigns(root);
+    for (const camp of campaigns) {
+      stopLoop(camp.name);
+    }
+    return c.json({ ok: true });
+  });
+
+  app.get("/api/monitor/status", async (c) => {
+    return c.json(getAllLoopStatuses());
   });
 
   console.log(`Distro Dashboard running on port ${port}`);

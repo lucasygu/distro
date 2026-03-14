@@ -63,6 +63,7 @@ program
   .description("Register a posted reply in the tracking ledger")
   .option("--strategy <type>", "Reply strategy type")
   .option("--find-in <url>", "Find our reply in an OP thread")
+  .option("--topic <topic>", "Topic tag (audience-growth)")
   .action(async (url, opts) => {
     const root = resolveRoot(program.opts().root);
     const dir = resolveCampaignDir(root, program.opts().campaign);
@@ -138,6 +139,7 @@ program
   .description("Scaffold a new campaign directory")
   .option("--repo <owner/name>", "GitHub repo")
   .option("--handle <handle>", "X handle")
+  .option("--strategy <type>", "Strategy type (reply-to-boost, audience-growth)", "reply-to-boost")
   .action(async (name, opts) => {
     const root = resolveRoot(program.opts().root);
     await initCommand(root, { name, ...opts });

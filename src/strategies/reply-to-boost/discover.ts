@@ -16,7 +16,7 @@ export async function replyToBoostDiscover(
   // Search for our recent tweets
   const searches = [
     `from:${config.handle}`,
-    `from:${config.handle} github.com/${config.repo.split("/")[1]}`,
+    `from:${config.handle} github.com/${(config.repo ?? "").split("/")[1] ?? ""}`,
   ];
 
   const seen = new Map<string, BirdTweet>();
