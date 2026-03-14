@@ -12,6 +12,16 @@ const execFile = promisify(execFileCb);
 export async function starsCommand(campaignDir: string): Promise<void> {
   const config = await loadCampaign(campaignDir);
 
+  if (config.strategy === "x-post-growth") {
+    console.log(`Skipping stars for "${config.name}" (x-post-growth has no repo).`);
+    return;
+  }
+
+  if (!config.repo) {
+    console.log(`No repo configured for "${config.name}". Skipping stars.`);
+    return;
+  }
+
   // Fetch current stats via gh CLI
   let stars: number;
   let forks: number;

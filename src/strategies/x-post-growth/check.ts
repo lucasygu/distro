@@ -13,10 +13,10 @@ type CheckOpts = {
 };
 
 /**
- * Audience-growth check: snapshot follower count and
+ * X-post-growth check: snapshot follower count and
  * engagement metrics on tracked posts.
  */
-export async function audienceGrowthCheck(
+export async function xPostGrowthCheck(
   campaignDir: string,
   opts: CheckOpts,
 ): Promise<void> {
@@ -24,7 +24,7 @@ export async function audienceGrowthCheck(
   const ledger = await loadPostLedger(campaignDir);
 
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log(` Audience Growth Check — ${config.name}`);
+  console.log(` X Post Growth Check — ${config.name}`);
   console.log(` ${new Date().toISOString().slice(0, 16).replace("T", " ")}`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log();

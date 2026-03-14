@@ -8,10 +8,10 @@ type RegisterOpts = {
 };
 
 /**
- * Register a post (original or reply) in the audience-growth ledger.
+ * Register a post (original or reply) in the x-post-growth ledger.
  * Fetches tweet data from bird CLI to populate the entry.
  */
-export async function audienceGrowthRegister(
+export async function xPostGrowthRegister(
   campaignDir: string,
   urlOrId: string,
   opts: RegisterOpts,

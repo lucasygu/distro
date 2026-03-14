@@ -127,7 +127,7 @@ export async function appendStarSnapshot(
   await writeFile(historyPath, JSON.stringify(history, null, 2) + "\n");
 }
 
-// === Post ledger (audience-growth) ===
+// === Post ledger (x-post-growth) ===
 
 export async function loadPostLedger(
   campaignDir: string,
@@ -149,7 +149,7 @@ export async function savePostLedger(
   await writeFile(path, JSON.stringify(ledger, null, 2) + "\n");
 }
 
-// === Growth history (audience-growth) ===
+// === Growth history (x-post-growth) ===
 
 export async function loadGrowthHistory(
   campaignDir: string,

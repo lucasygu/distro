@@ -1,7 +1,7 @@
 // Strategy abstraction — each distribution strategy implements this interface.
 // Commands delegate to the active strategy; the CLI surface stays the same.
 
-export type StrategyType = "reply-to-boost" | "audience-growth";
+export type StrategyType = "reply-to-boost" | "x-post-growth";
 
 export interface Strategy {
   readonly type: StrategyType;

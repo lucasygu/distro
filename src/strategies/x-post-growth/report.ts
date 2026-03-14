@@ -11,10 +11,10 @@ type ReportOpts = {
 };
 
 /**
- * Audience-growth report: summarize growth trajectory,
+ * X-post-growth report: summarize growth trajectory,
  * top-performing posts, and what topics/formats work.
  */
-export async function audienceGrowthReport(
+export async function xPostGrowthReport(
   campaignDir: string,
   opts: ReportOpts,
 ): Promise<void> {
@@ -23,7 +23,7 @@ export async function audienceGrowthReport(
   const growth = await loadGrowthHistory(campaignDir);
 
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log(` Audience Growth Report — ${config.name}`);
+  console.log(` X Post Growth Report — ${config.name}`);
   console.log(` ${ledger.posts.length} posts tracked | ${growth.length} growth snapshots`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log();

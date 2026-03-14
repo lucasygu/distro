@@ -1,19 +1,19 @@
 import type { Strategy } from "../types.js";
-import { audienceGrowthMonitor } from "./monitor.js";
-import { audienceGrowthRegister } from "./register.js";
-import { audienceGrowthCheck } from "./check.js";
-import { audienceGrowthReport } from "./report.js";
+import { xPostGrowthMonitor } from "./monitor.js";
+import { xPostGrowthRegister } from "./register.js";
+import { xPostGrowthCheck } from "./check.js";
+import { xPostGrowthReport } from "./report.js";
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 
-export const audienceGrowthStrategy: Strategy = {
-  type: "audience-growth",
-  displayName: "Twitter Audience Growth",
+export const xPostGrowthStrategy: Strategy = {
+  type: "x-post-growth",
+  displayName: "X Post Growth",
 
-  monitor: audienceGrowthMonitor,
-  register: audienceGrowthRegister,
-  check: audienceGrowthCheck,
-  report: audienceGrowthReport,
+  monitor: xPostGrowthMonitor,
+  register: xPostGrowthRegister,
+  check: xPostGrowthCheck,
+  report: xPostGrowthReport,
   loopCommands: () => ["monitor", "check"],
 
   async initFiles(campaignDir: string) {

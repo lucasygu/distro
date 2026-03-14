@@ -18,6 +18,6 @@ export function getStrategy(type: StrategyType): Strategy {
 
 // Auto-register built-in strategies
 import { replyToBoostStrategy } from "./reply-to-boost/index.js";
-import { audienceGrowthStrategy } from "./audience-growth/index.js";
+import { xPostGrowthStrategy } from "./x-post-growth/index.js";
 registerStrategy(replyToBoostStrategy);
-registerStrategy(audienceGrowthStrategy);
+registerStrategy(xPostGrowthStrategy);

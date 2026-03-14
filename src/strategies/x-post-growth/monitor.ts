@@ -10,10 +10,10 @@ type MonitorOpts = {
 };
 
 /**
- * Audience-growth monitor: find trending posts in your topics
+ * X-post-growth monitor: find trending posts in your topics
  * to engage with authentically. No product links — just build presence.
  */
-export async function audienceGrowthMonitor(
+export async function xPostGrowthMonitor(
   campaignDir: string,
   opts: MonitorOpts,
 ): Promise<void> {
@@ -34,7 +34,7 @@ export async function audienceGrowthMonitor(
   );
 
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log(` Audience Growth — ${config.name}`);
+  console.log(` X Post Growth — ${config.name}`);
   console.log(` Topics: ${topics.length} | Min likes: ${minLikes}`);
   console.log(` ${new Date().toISOString().slice(0, 16).replace("T", " ")}`);
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

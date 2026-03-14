@@ -4,6 +4,7 @@ import { getStrategy } from "../strategies/registry.js";
 type RegisterOpts = {
   strategy?: string;
   findIn?: string;
+  topic?: string;
 };
 
 export async function registerCommand(

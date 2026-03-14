@@ -1,6 +1,6 @@
 ---
 name: distro
-description: Distribution engine for open-source projects. Supports multiple strategies — reply-to-boost (reply to viral tweets + track stars) and audience-growth (build followers through authentic engagement). Monitor X, track performance, run loops, and manage the dashboard.
+description: Distribution engine for open-source projects. Supports multiple strategies — reply-to-boost (reply to viral tweets + track stars) and x-post-growth (build followers through authentic engagement). Monitor X, track performance, run loops, and manage the dashboard.
 argument-hint: <monitor | check | report | stars | loop | dashboard | draft <url> | discover | register <url> | insight | init>
 allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion
 ---
@@ -27,7 +27,7 @@ Distro supports multiple distribution strategies. Each campaign has one strategy
 | Strategy | Purpose | Loop Commands | Key Metrics |
 |----------|---------|---------------|-------------|
 | `reply-to-boost` | Reply to viral tweets → drive traffic to your repo | monitor, stars, check | Reply likes, star growth, capture rate |
-| `audience-growth` | Build followers through authentic topic engagement | monitor, check | Follower growth, post likes, topic performance |
+| `x-post-growth` | Build followers through authentic topic engagement | monitor, check | Follower growth, post likes, topic performance |
 
 The CLI surface is the same for all strategies — commands delegate to the active strategy automatically.
 
@@ -45,7 +45,7 @@ The CLI surface is the same for all strategies — commands delegate to the acti
   reports/               — saved reports
 ```
 
-### audience-growth
+### x-post-growth
 ```
 <name>/
   campaign.json          — config (topics, handle, postFrequency)
@@ -71,7 +71,7 @@ After monitor runs:
 2. If **no targets**, just say "No new targets"
 3. Show targets and drafts for user approval before posting
 
-**audience-growth:** Searches configured topics for trending posts to engage with authentically. No product links — just build presence and visibility.
+**x-post-growth:** Searches configured topics for trending posts to engage with authentically. No product links — just build presence and visibility.
 
 After monitor runs:
 1. Show engagement opportunities ranked by likes
@@ -86,7 +86,7 @@ distro --root ~/projects/content/content-pipeline/distribution --campaign <name>
 
 **reply-to-boost:** Fetches current likes/RTs on tracked replies. Detects milestone crossings (5L, 10L, 20L, 50L). Skips if last snapshot < 2h old.
 
-**audience-growth:** Fetches follower count from profile + engagement snapshots on tracked posts. Appends to growth history.
+**x-post-growth:** Fetches follower count from profile + engagement snapshots on tracked posts. Appends to growth history.
 
 After checking:
 - Alert if any post crossed notable thresholds
@@ -99,7 +99,7 @@ After checking:
 distro --root ~/projects/content/content-pipeline/distribution --campaign <name> stars
 ```
 
-Fetches GitHub stars/forks via `gh api`. Not available for audience-growth (no repo).
+Fetches GitHub stars/forks via `gh api`. Not available for x-post-growth (no repo).
 
 If there's a star spike (+3 or more), check recent reply milestones to correlate.
 
@@ -112,7 +112,7 @@ distro --root ~/projects/content/content-pipeline/distribution --campaign <name>
 
 **reply-to-boost:** Leaderboard by likes, reply tactic breakdown, correlations (char count, OP age, links), missed opportunities.
 
-**audience-growth:** Top posts by likes, topic breakdown, post type comparison (originals vs replies), follower growth trajectory.
+**x-post-growth:** Top posts by likes, topic breakdown, post type comparison (originals vs replies), follower growth trajectory.
 
 After the report, generate an insight if any pattern stands out:
 ```bash
@@ -125,13 +125,13 @@ distro --root ~/projects/content/content-pipeline/distribution --campaign <name>
 # reply-to-boost: register a reply with strategy tag
 distro --root ~/projects/content/content-pipeline/distribution --campaign <name> register <url> --strategy short-anchored
 
-# audience-growth: register a post with topic tag
+# x-post-growth: register a post with topic tag
 distro --root ~/projects/content/content-pipeline/distribution --campaign <name> register <url> --topic ai-tools
 ```
 
 **reply-to-boost:** Fetches reply + OP, computes OP age, creates initial snapshot in reply-ledger.
 
-**audience-growth:** Fetches tweet, determines if original/reply, creates entry in post-ledger with topic tag.
+**x-post-growth:** Fetches tweet, determines if original/reply, creates entry in post-ledger with topic tag.
 
 ### `/distro discover` — Find untracked posts (reply-to-boost)
 
@@ -149,7 +149,7 @@ Given an X post URL, draft reply variations following the campaign's playbook or
 2. Read the campaign config and any playbook
 3. Draft variations:
    - **reply-to-boost:** Short-anchored (echo one OP detail → bridge to product, <80 chars, include GitHub link)
-   - **audience-growth:** Authentic engagement (add value to the conversation, no product links)
+   - **x-post-growth:** Authentic engagement (add value to the conversation, no product links)
 4. Present for user to choose, copy to clipboard
 
 ### `/distro insight <message>` — Log an insight
@@ -164,8 +164,8 @@ distro --root ~/projects/content/content-pipeline/distribution --campaign <name>
 # reply-to-boost (default)
 distro --root ~/projects/content/content-pipeline/distribution init my-project --repo lucasygu/my-project --handle lucasgu
 
-# audience-growth
-distro --root ~/projects/content/content-pipeline/distribution init my-brand --handle lucasgu --strategy audience-growth
+# x-post-growth
+distro --root ~/projects/content/content-pipeline/distribution init my-brand --handle lucasgu --strategy x-post-growth
 ```
 
 Creates the full campaign directory with strategy-specific files.
@@ -226,7 +226,7 @@ https://github.com/lucasygu/redbook
 ```
 Result: 22 likes, 10.3% capture rate
 
-## Engagement Rules (audience-growth)
+## Engagement Rules (x-post-growth)
 
 - NO product links in replies — this is about building authentic presence
 - Add genuine value: share experience, ask questions, offer insights
@@ -250,4 +250,4 @@ distro --root ~/projects/content/content-pipeline/distribution --campaign ttc-cl
 ## Known Limitations
 
 - **Blocked accounts are invisible.** Bird uses Chrome cookies for X access. If a user blocks you, their posts won't appear in search or read.
-- **audience-growth follower tracking** depends on bird being able to read profile data. May not always return follower count.
+- **x-post-growth follower tracking** depends on bird being able to read profile data. May not always return follower count.

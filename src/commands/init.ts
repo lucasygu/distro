@@ -33,12 +33,12 @@ export async function initCommand(
   // Build config based on strategy
   let config: CampaignConfig;
 
-  if (strategyType === "audience-growth") {
+  if (strategyType === "x-post-growth") {
     config = {
       name,
       handle: opts.handle ?? "lucasgu",
       language: "zh",
-      strategy: "audience-growth",
+      strategy: "x-post-growth",
       platform: "x",
       topics: [
         `${name} (tool OR project)`,
